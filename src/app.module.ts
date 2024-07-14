@@ -17,7 +17,7 @@ import { AuthModule } from './auth/auth.module';
     userModule,
     AuthModule,
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController, AuthController], // test thu
   providers: [AppService],
 })
 export class AppModule implements NestModule {
