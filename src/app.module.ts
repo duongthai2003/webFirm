@@ -8,16 +8,18 @@ import { userModule } from './api/user/user.module';
 
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
+import { CategoryModule } from './api/category/category.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(), // de doc dc file .env
     // MongooseModule.forRoot('mongodb://localhost/Web_Firm'),
     DatabaseModule.mainDb(),
-    userModule,
     AuthModule,
+    userModule,
+    CategoryModule,
   ],
-  controllers: [AppController, AuthController], // test thu
+  controllers: [AppController, AuthController],
   providers: [AppService],
 })
 export class AppModule implements NestModule {
