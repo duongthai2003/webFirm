@@ -9,6 +9,7 @@ import { userModule } from './api/user/user.module';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { CategoryModule } from './api/category/category.module';
+import { MoviesModule } from './api/movies/movies.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CategoryModule } from './api/category/category.module';
     AuthModule,
     userModule,
     CategoryModule,
+    MoviesModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],

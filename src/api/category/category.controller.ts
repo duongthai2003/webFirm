@@ -8,15 +8,19 @@ import {
   Post,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create.dto';
 import { PaginationQuery } from './dto/paginationQuery.dto';
 import { UpdaetCategoryDto } from './dto/update.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Category Management')
 @Controller('category')
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'))
 export class CategoryController {
   constructor(protected readonly categoryService: CategoryService) {}
 

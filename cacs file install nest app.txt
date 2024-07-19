@@ -8,3 +8,6 @@ types/passport-jwt
 nestjs/jwt
 @nestjs/class-validator
 @types/multer
+class-transformer
+npm i @types/lodash
+npm i lodash

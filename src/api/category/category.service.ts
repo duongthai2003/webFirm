@@ -56,4 +56,13 @@ export class CategoryService {
       throw new NotFoundException('category is not found!');
     }
   }
+  async findByIds(ids: string[]) {
+    const items = await this.model.find({
+      _id: {
+        $in: ids,
+      },
+    });
+
+    return items.map((item) => item.toObject());
+  }
 }
