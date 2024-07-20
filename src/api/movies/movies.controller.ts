@@ -19,7 +19,13 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { MoviesService } from './movies.service';
 import { CreateMoviesDto } from './dto/create.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -28,9 +34,9 @@ import { extname } from 'path';
 import { UpdateMoviesDto } from './dto/update.dto';
 import { Response } from 'express';
 import * as path from 'path';
-import { PaginationQueryDto } from 'src/libs/shares/paginationQuery.dto';
+import { PaginationQueryDto } from 'src/shares/paginationQuery.dto';
 import { AuthGuard } from '@nestjs/passport';
-import CustomFileImg from './component/customFileImg';
+import CustomFileImg from '../../shares/customFile/customFileImg';
 import _ from 'lodash';
 
 @ApiTags('Movies')
@@ -49,25 +55,25 @@ export class MoviesController {
   }
   @Post('')
   @ApiOperation({ summary: 'create movies' })
+  // @ApiConsumes('multipart/form-data')
+  // @ApiBody({
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       namefirm: { type: 'string' },
+  //       description: { type: 'string' },
+  //       categorys: { type: '[string]' },
+  //       file: { type: 'string', format: 'binary' },
+  //     },
+  //   },
+  // })
   @UseInterceptors(FileInterceptor('file', CustomFileImg()))
   create(
     @Req() req,
     @Body() body: CreateMoviesDto,
-    @UploadedFile() // new ParseFilePipeBuilder()
-    //     fileType: 'jpeg',
-    file //   .addFileTypeValidator({
-    //   })
-    //   .addMaxSizeValidator({
-    //     maxSize: 10000,
-    //     message: 'file nho hơn 10000 kb',
-    //   })
-    //   .build({
-    //     errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-    //   }),
-
-    // new ParseFilePipe({
+    @UploadedFile() // new ParseFilePipe({
     //   validators: [
-    //     new MaxFileSizeValidator({
+    file //     new MaxFileSizeValidator({
     //       maxSize: 1000,
     //       message: 'file nho hơn 1000 kb',
     //     }), // quy định dung luong file
@@ -78,6 +84,8 @@ export class MoviesController {
     // }),
     : Express.Multer.File,
   ) {
+    // console.log(body, typeof body.categorys, file);
+
     return this.moviesService.create(body, file);
   }
 

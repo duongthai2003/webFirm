@@ -2,25 +2,19 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 
-function CustomFileImg() {
+function CustomFileVideo() {
   return {
     storage: diskStorage({
-      destination: './upload/posters',
-      filename: (req, file, cb) => {
+      destination: './upload/videos',
+      filename(req: any, file: any, callback: any) {
         const name = Date.now() + '_' + file.originalname;
-        cb(null, name);
+        callback(null, name);
       },
     }),
-    limits: {
-      fieldSize: 1 * 1024 * 1024,
-    },
-    // quy dinh nhan loai file
     fileFilter: (req: any, file: any, cb: any) => {
-      if (file.mimetype.match(/\/(jpg|jpeg|png|gif )$/)) {
-        // Allow storage of file
+      if (file.mimetype.match('video')) {
         cb(null, true);
       } else {
-        // Reject file
         cb(
           new HttpException(
             `Unsupported file type ${extname(file.originalname)}`,
@@ -32,5 +26,4 @@ function CustomFileImg() {
     },
   };
 }
-
-export default CustomFileImg;
+export default CustomFileVideo;

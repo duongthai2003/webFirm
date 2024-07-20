@@ -10,12 +10,14 @@ import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { CategoryModule } from './api/category/category.module';
 import { MoviesModule } from './api/movies/movies.module';
+import { EpisodeModule } from './api/episode/episode.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(), // de doc dc file .env
     // MongooseModule.forRoot('mongodb://localhost/Web_Firm'),
     DatabaseModule.mainDb(),
+    EpisodeModule,
     AuthModule,
     userModule,
     CategoryModule,

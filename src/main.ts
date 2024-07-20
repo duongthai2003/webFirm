@@ -10,11 +10,18 @@ import { CategoryModule } from './api/category/category.module';
 import { MoviesModule } from './api/movies/movies.module';
 import { json } from 'body-parser';
 import * as path from 'path';
+import { EpisodeModule } from './api/episode/episode.module';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   if (process.env.ENABLE_SWAGGER) {
-    useSwagger(app, [userModule, AuthModule, CategoryModule, MoviesModule]);
+    useSwagger(app, [
+      userModule,
+      AuthModule,
+      CategoryModule,
+      MoviesModule,
+      EpisodeModule,
+    ]);
   }
   // log request
   useLogger(app);

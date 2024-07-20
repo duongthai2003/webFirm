@@ -65,35 +65,34 @@ export class MoviesService<T = Document> {
   async update(id: string, body: any, file: any) {
     const movie = await this.model.findById(id);
     const categorys = await this.categoryService.findByIds(body.categorys);
-    if (file) {
-      try {
-        await this.model.findByIdAndUpdate(
-          id,
-          {
-            ...body,
-            poster: file.filename,
-            categorys: categorys,
-          },
-          {
-            new: true,
-          },
-        );
+
+    try {
+      return await this.model.findByIdAndUpdate(
+        id,
+        {
+          ...body,
+          poster: file && file.filename,
+          categorys: categorys,
+        },
+        {
+          new: true,
+        },
+      );
+      file &&
         fs.unlink(`./upload/posters/${movie.poster}`, (err) => {
           if (err) {
             return err;
           }
         });
-      } catch (err) {
-        fs.unlink(`./upload/posters/${file.filename}`, (err) => {
+    } catch (err) {
+      file &&
+        fs.unlink(`./upload/posters/${file && file.filename}`, (err) => {
           if (err) {
             return err;
           }
         });
 
-        return err.message;
-      }
-    } else {
-      throw new BadRequestException('file is required');
+      return err.message;
     }
   }
 
@@ -110,8 +109,7 @@ export class MoviesService<T = Document> {
       },
     });
   }
+  async getById(id: string) {
+    return await this.model.findById(id);
+  }
 }
-
-// '',
-// '',
-// '',
