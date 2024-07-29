@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Type } from 'class-transformer';
 
 import { Movies, MoviesSchema } from '../movies/movies.entity';
+import mongoose from 'mongoose';
 
 @Schema({
   _id: true,
@@ -17,9 +18,16 @@ export class Episodes {
   @Prop({ required: true })
   nameFile: string;
 
-  @Prop({ type: MoviesSchema })
-  @Type(() => Movies)
-  movie: Movies;
+  @Prop({
+    required: true,
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'movies' }], // cai tên ref kia là tù bên MainDBModel
+  })
+  @Type(() => Array<Movies>)
+  movieId: Array<Movies>;
+
+  // @Prop({ type: MoviesSchema })
+  // @Type(() => Movies)
+  // movie: Movies;
 }
 
 export const EpisodesSchema = SchemaFactory.createForClass(Episodes);

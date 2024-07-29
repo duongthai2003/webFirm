@@ -19,8 +19,6 @@ import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Category Management')
 @Controller('category')
-@ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 export class CategoryController {
   constructor(protected readonly categoryService: CategoryService) {}
 
@@ -31,7 +29,8 @@ export class CategoryController {
   index(@Req() req, @Query() query: PaginationQuery) {
     return this.categoryService.getPaginate(query.start, query.limit);
   }
-
+  // @ApiBearerAuth()
+  // @UseGuards(AuthGuard('jwt'))
   @Post('')
   @ApiOperation({
     summary: 'create Category',

@@ -5,7 +5,6 @@ import {
   MainDBModel,
 } from 'src/libs/connections/database.module';
 import { EpisodeController } from './episode.controller';
-import { MoviesService } from '../movies/movies.service';
 import { MoviesModule } from '../movies/movies.module';
 
 @Module({

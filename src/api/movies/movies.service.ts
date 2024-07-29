@@ -1,22 +1,32 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { Document, FilterQuery, Model } from 'mongoose';
 import { InjectMainDBModel, MainDBModel } from 'src/libs/connections/main-db';
 import { Category } from 'src/libs/models/category/category.entity';
-import { Movies } from 'src/libs/models/movies/movies.entity';
+import { Movies, PopularStatus } from 'src/libs/models/movies/movies.entity';
 import { CategoryService } from '../category/category.service';
 import * as fs from 'fs';
 import { User } from 'src/libs/models/user/user.entity';
-import _, { set } from 'lodash';
+import * as _ from 'lodash';
+import { Episodes } from 'src/libs/models/episodes/episode.entity';
 
 @Injectable()
-export class MoviesService<T = Document> {
+export class MoviesService {
   constructor(
     @InjectMainDBModel(MainDBModel.Movies)
     protected readonly model: Model<Movies>,
+    @InjectMainDBModel(MainDBModel.Episode)
+    protected readonly modelEpisode: Model<Episodes>,
     protected readonly categoryService: CategoryService,
   ) {}
 
-  async panigation(start: number, limit: number, query?: FilterQuery<T>) {
+  async panigation(start: number, limit: number, query?: FilterQuery<Movies>) {
+    console.log({ ...query });
+
     const items = await this.model.find(
       { ...query, deleteAt: null }, //điều kiện
       {},
@@ -47,6 +57,7 @@ export class MoviesService<T = Document> {
           ...body,
           categorys: items,
           poster: file.filename,
+          populalStatus: PopularStatus.notpopular,
         });
       } catch (err) {
         fs.unlink(`./upload/posters/${file.filename}`, (err) => {
@@ -62,12 +73,12 @@ export class MoviesService<T = Document> {
     }
   }
 
-  async update(id: string, body: any, file: any) {
+  async update(id: string, body: any, file?: any) {
     const movie = await this.model.findById(id);
     const categorys = await this.categoryService.findByIds(body.categorys);
 
     try {
-      return await this.model.findByIdAndUpdate(
+      const update = await this.model.findByIdAndUpdate(
         id,
         {
           ...body,
@@ -84,6 +95,7 @@ export class MoviesService<T = Document> {
             return err;
           }
         });
+      return update;
     } catch (err) {
       file &&
         fs.unlink(`./upload/posters/${file && file.filename}`, (err) => {
@@ -109,6 +121,30 @@ export class MoviesService<T = Document> {
       },
     });
   }
+
+  async getPopuleMovie() {
+    return await this.model.find({
+      populalStatus: 1,
+    });
+  }
+
+  async getAnMovieById(id: string) {
+    const movie = await this.model.findById(id);
+    const episodes = await this.modelEpisode.find(
+      {
+        movieId: id,
+      },
+      {},
+      {
+        sort: {
+          episodesNum: 'desc',
+        },
+        populate: ['movieId'], // lay ra thong tin cua movie duaj vao id
+      },
+    );
+    return { movie, episodes };
+  }
+
   async getById(id: string) {
     return await this.model.findById(id);
   }

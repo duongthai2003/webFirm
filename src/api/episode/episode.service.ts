@@ -39,11 +39,16 @@ export class EpisodeService {
       try {
         const movie = await this.moviesService.getById(body.movieId);
 
-        return await this.model.create({
+        const create = await this.model.create({
           ...body,
           nameFile: file.filename,
-          movie: { ...movie },
+          // movie: { ...movie },
         });
+        await this.moviesService.update(body.movieId, {
+          LatestEpisode: body.episodesNum,
+        });
+
+        return create;
       } catch (err) {
         fs.unlink(`./upload/videos/${file.filename}`, (err) => {
           if (err) {
@@ -87,5 +92,36 @@ export class EpisodeService {
     } else {
       throw new BadRequestException('File is required');
     }
+  }
+
+  async getAnEpisode(id: string) {
+    const episode = await this.model.findById(
+      id,
+      {},
+      {
+        populate: ['movieId'],
+      },
+    );
+    const allEpisodesMovie = await this.model.find(
+      {
+        movieId: episode.movieId,
+      },
+      {},
+      {
+        sort: {
+          episodesNum: 'desc',
+        },
+      },
+    );
+    return {
+      episode,
+      allEpisodesMovie,
+    };
+  }
+
+  async getAllEpisodeOfMovie(movieId: string) {
+    return await this.model.find({
+      _id: movieId,
+    });
   }
 }

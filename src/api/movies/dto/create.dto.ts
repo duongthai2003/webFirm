@@ -10,8 +10,6 @@ export class CreateMoviesDto {
   @ApiProperty({})
   categorys: string[];
 
-  // @ApiProperty({
-  //   type:file
-  // })
-  // file: File;
+  @ApiProperty({})
+  Showtimes: number;
 }

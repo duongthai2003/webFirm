@@ -29,20 +29,17 @@ import {
 import { MoviesService } from './movies.service';
 import { CreateMoviesDto } from './dto/create.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { UpdateMoviesDto } from './dto/update.dto';
 import { Response } from 'express';
-import * as path from 'path';
 import { PaginationQueryDto } from 'src/shares/paginationQuery.dto';
 import { AuthGuard } from '@nestjs/passport';
 import CustomFileImg from '../../shares/customFile/customFileImg';
-import _ from 'lodash';
+import * as _ from 'lodash';
 
 @ApiTags('Movies')
 @Controller('movies')
-@ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
+// @ApiBearerAuth()
+// @UseGuards(AuthGuard('jwt'))
 export class MoviesController {
   constructor(protected readonly moviesService: MoviesService) {}
 
@@ -72,8 +69,8 @@ export class MoviesController {
     @Req() req,
     @Body() body: CreateMoviesDto,
     @UploadedFile() // new ParseFilePipe({
-    //   validators: [
-    file //     new MaxFileSizeValidator({
+    //     new MaxFileSizeValidator({
+    file //   validators: [
     //       maxSize: 1000,
     //       message: 'file nho hơn 1000 kb',
     //     }), // quy định dung luong file
@@ -108,9 +105,9 @@ export class MoviesController {
   })
   delete(@Req() req, @Param('id') id: string) {
     // console.log(
-    //   'ttttttttttttt',
+    //   'rrrrrrrrrr',
     //   _.pick(req.user, [
-    //     'id',
+    //     '_id',
     //     'email',
     //     'username',
     //     'firstName',
@@ -120,8 +117,22 @@ export class MoviesController {
     return this.moviesService.sofDelete(id, req.user);
   }
 
-  // @Get('/getfile')
-  // getfile(@Res() res: Response, @Body() body: NamefileDto) {
-  //   res.sendFile(path.join(__dirname, '../upload/images/test.jpg'));
-  // }
+  @Get('popular')
+  @ApiOperation({ summary: 'Get popular movie' })
+  popular() {
+    return this.moviesService.getPopuleMovie();
+  }
+
+  @Get('/:id')
+  @ApiOperation({ summary: 'get an movie by Id' })
+  async getAnMovie(@Param('id') id: string) {
+    return this.moviesService.getAnMovieById(id);
+  }
+
+  ///'get static image file
+  @Get('poster/:filename')
+  @ApiOperation({ summary: 'get static image file' })
+  async getfile(@Param('filename') filename: string, @Res() res: Response) {
+    res.sendFile(filename, { root: './upload/posters' });
+  }
 }

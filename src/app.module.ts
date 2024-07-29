@@ -17,11 +17,11 @@ import { EpisodeModule } from './api/episode/episode.module';
     ConfigModule.forRoot(), // de doc dc file .env
     // MongooseModule.forRoot('mongodb://localhost/Web_Firm'),
     DatabaseModule.mainDb(),
-    EpisodeModule,
     AuthModule,
     userModule,
     CategoryModule,
     MoviesModule,
+    EpisodeModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],

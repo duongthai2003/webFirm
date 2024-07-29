@@ -6,15 +6,23 @@ import {
   Patch,
   Post,
   Query,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiProperty,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateEpisodeDto } from './dto/create.dto';
 import { EpisodeService } from './episode.service';
 import CustomFileVideo from 'src/shares/customFile/customFileVideo';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PaginationQueryDto } from 'src/shares/paginationQuery.dto';
+import { Response } from 'express';
 
 @ApiTags('tap phim')
 @Controller('episode')
@@ -75,5 +83,17 @@ export class EpisodeController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     return this.episodeService.update(id, body, file);
+  }
+  @Get('anEpisode/:id')
+  @ApiOperation({ summary: 'get an episode by id' })
+  getanEpisode(@Param('id') id: string) {
+    return this.episodeService.getAnEpisode(id);
+  }
+
+  ///'get static image file
+  @Get('episodeFirm/:filename')
+  @ApiOperation({ summary: 'get static image file' })
+  async getfile(@Param('filename') filename: string, @Res() res: Response) {
+    res.sendFile(filename, { root: './upload/videos' });
   }
 }

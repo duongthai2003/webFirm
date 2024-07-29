@@ -15,9 +15,9 @@ export class CategoryService {
       {},
       {},
       {
-        sort: {
-          createdAt: 'desc',
-        },
+        // sort: {
+        //   createdAt: 'desc',
+        // },
         limit: limit || 10,
         skip: start || 0,
       },
