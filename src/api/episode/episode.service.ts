@@ -119,9 +119,24 @@ export class EpisodeService {
     };
   }
 
-  async getAllEpisodeOfMovie(movieId: string) {
-    return await this.model.find({
-      _id: movieId,
-    });
+  async getAllEpisodeOfMovie(movieId: string, start: number, limit: number) {
+    const items = await this.model.find(
+      {
+        movieId: movieId,
+      },
+      {},
+      {
+        sort: {
+          episodesNum: 'desc',
+        },
+        limit: limit,
+        skip: start,
+      },
+    );
+    return {
+      items,
+      start,
+      limit,
+    };
   }
 }

@@ -65,4 +65,8 @@ export class CategoryService {
 
     return items.map((item) => item.toObject());
   }
+
+  async findById(id: string) {
+    return this.model.findById(id);
+  }
 }

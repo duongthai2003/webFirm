@@ -20,7 +20,9 @@ export class Episodes {
 
   @Prop({
     required: true,
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'movies' }], // cai tên ref kia là tù bên MainDBModel
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'movies' }],
+    // lien ket nhieu
+    // cai tên ref kia là tù bên MainDBModel
   })
   @Type(() => Array<Movies>)
   movieId: Array<Movies>;

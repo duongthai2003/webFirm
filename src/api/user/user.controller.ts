@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,13 +9,15 @@ import {
   Post,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create.dto';
 import { Document, Model } from 'mongoose';
 import { PaginationQuery } from './dto/PaginationQuery.dto';
 import { UpdateUserDto } from './dto/update.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('User Management')
 @Controller('users')
@@ -52,5 +55,17 @@ export class UserController {
   @ApiOperation({ summary: 'Delete user by id' })
   delete(@Req() req, @Param('id') id: string) {
     return this.userService.deleteUser(id);
+  }
+
+  @Patch('admin-reset-pass/:id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'admin update password user by id' })
+  updatepass(@Req() req, @Param('id') id: string, @Body() body) {
+    if (req.user.type === 2) {
+      return this.userService.adminUpadtwpass(id, body);
+    } else {
+      throw new BadRequestException('You are not an admin');
+    }
   }
 }

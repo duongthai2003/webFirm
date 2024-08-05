@@ -25,8 +25,6 @@ export class MoviesService {
   ) {}
 
   async panigation(start: number, limit: number, query?: FilterQuery<Movies>) {
-    console.log({ ...query });
-
     const items = await this.model.find(
       { ...query, deleteAt: null }, //điều kiện
       {},
@@ -147,5 +145,21 @@ export class MoviesService {
 
   async getById(id: string) {
     return await this.model.findById(id);
+  }
+
+  async getMovieofCategory(categoryId: string) {
+    const category = await this.categoryService.findById(categoryId);
+
+    const items = await this.model.find({
+      categorys: {
+        $elemMatch: {
+          _id: categoryId,
+        },
+      },
+    });
+    return {
+      items,
+      category,
+    };
   }
 }

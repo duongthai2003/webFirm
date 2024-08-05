@@ -9,6 +9,7 @@ import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import * as _ from 'lodash';
 
 @ApiTags('Auht')
 @Controller('auth')
@@ -28,7 +29,16 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   index(@Req() req) {
-    return req.user;
+    return _.pick(req.user, [
+      'createdAt',
+      'email',
+      'firstName',
+      'lastName',
+      'updatedAt',
+      'username',
+      '__v',
+      '_id',
+    ]);
   }
 
   @Post('register')

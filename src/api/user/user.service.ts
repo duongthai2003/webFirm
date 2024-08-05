@@ -53,4 +53,13 @@ export class UserService {
       throw new NotFoundException('user is not found!');
     }
   }
+
+  async adminUpadtwpass(id: string, body: any) {
+    if (body.newPassword === body.confirmPassword) {
+      const passwordHash = await bcrypt.hash(body.newPassword, 10);
+      return await this.model.findByIdAndUpdate(id, {
+        passwordHash,
+      });
+    }
+  }
 }

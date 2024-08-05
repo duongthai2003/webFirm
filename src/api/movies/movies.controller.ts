@@ -24,6 +24,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
+  ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
 import { MoviesService } from './movies.service';
@@ -69,8 +70,8 @@ export class MoviesController {
     @Req() req,
     @Body() body: CreateMoviesDto,
     @UploadedFile() // new ParseFilePipe({
-    //     new MaxFileSizeValidator({
-    file //   validators: [
+    //   validators: [
+    file //     new MaxFileSizeValidator({
     //       maxSize: 1000,
     //       message: 'file nho hơn 1000 kb',
     //     }), // quy định dung luong file
@@ -96,10 +97,14 @@ export class MoviesController {
     @Body() body: UpdateMoviesDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    console.log('gggg', file);
+
     return this.moviesService.update(id, body, file);
   }
 
   @Delete(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({
     summary: 'Delete movie',
   })
@@ -134,5 +139,11 @@ export class MoviesController {
   @ApiOperation({ summary: 'get static image file' })
   async getfile(@Param('filename') filename: string, @Res() res: Response) {
     res.sendFile(filename, { root: './upload/posters' });
+  }
+
+  @Get('movieOfCategory/:id')
+  @ApiOperation({ summary: 'get movie of category' })
+  getofcategory(@Param('id') id: string) {
+    return this.moviesService.getMovieofCategory(id);
   }
 }

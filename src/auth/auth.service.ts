@@ -7,7 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Document, Model } from 'mongoose';
 import { InjectMainDBModel, MainDBModel } from 'src/libs/connections/main-db';
-import { User } from 'src/libs/models/user/user.entity';
+import { TypeUser, User } from 'src/libs/models/user/user.entity';
 import * as bcrypt from 'bcrypt';
 import { UserService } from 'src/api/user/user.service';
 
@@ -64,6 +64,7 @@ export class AuthService {
     return this.userService.createuser({
       ...body,
       email: body.email.toLowerCase().trim(),
+      type: TypeUser.user,
     });
   }
 }

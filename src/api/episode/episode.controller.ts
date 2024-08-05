@@ -96,4 +96,14 @@ export class EpisodeController {
   async getfile(@Param('filename') filename: string, @Res() res: Response) {
     res.sendFile(filename, { root: './upload/videos' });
   }
+
+  @Get('allEpisodeOfFirm/:id')
+  @ApiOperation({ summary: 'get all episode' })
+  async getall(@Param('id') id: string, @Query() query: PaginationQueryDto) {
+    return this.episodeService.getAllEpisodeOfMovie(
+      id,
+      query.start,
+      query.limit,
+    );
+  }
 }
