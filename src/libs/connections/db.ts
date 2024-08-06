@@ -4,11 +4,17 @@ import { MongooseModule, MongooseModuleAsyncOptions } from '@nestjs/mongoose';
 import { MainDBModels, MainDBModel } from './main-db';
 export class DB extends MongooseModule {
   static mainDb(): DynamicModule {
-    return this.dbConnectAsync(
+    const as = this.dbConnectAsync(
       'MAIN_DB_PATH',
       this.getDBUri('Web_Firm'),
       'Web_Firm',
     );
+    if (as) {
+      console.log('da ket noi');
+    } else {
+      console.log('ko  ket noi');
+    }
+    return as;
   }
   static mainDbModels(modelNames: MainDBModel[]): DynamicModule {
     return DB.forFeatureModels(modelNames, MainDBModels, 'Web_Firm');
