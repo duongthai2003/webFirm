@@ -18,7 +18,7 @@ export class AuthController {
 
   @Post('login')
   @ApiOperation({ summary: 'Login' })
-  @UseGuards(AuthGuard('local')) //muon cai nay cahuy thif phai co file local.strategy.ts
+  @UseGuards(AuthGuard('local')) //muon cai nay chay thif phai co file local.strategy.ts
   login(@Req() req, @Body() body: LoginDto) {
     // muon cai req co data thif phair lam o ben local.strategy.ts
     return this.authServices.login(req.user);

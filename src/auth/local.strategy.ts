@@ -13,7 +13,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       usernameField: 'email',
     });
   }
-
+  //async validate cai ham nay no la mac dinh ko dc doi
   async validate(email: string, password: string): Promise<any> {
     const user = await this.authService.validateUser(email, password);
 

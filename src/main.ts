@@ -25,7 +25,7 @@ async function bootstrap() {
     ]);
   }
   // log request
-  useLogger(app);
+  useLogger(app); // cai nay tu viet
 
   /// accesss cors polyci
   app.enableCors({});
