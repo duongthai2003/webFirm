@@ -43,7 +43,11 @@ export class DB extends MongooseModule {
     return DB.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>(env) + '/' + dbname,
+        uri:
+          'mongodb+srv://thaiq9577:MKzahmXxX8DxYK0L@webfirm.vlm0see.mongodb.net/Web_Firm?retryWrites=true&w=majority&appName=WebFirm' +
+          '/' +
+          dbname,
+        //         uri: configService.get<string>(env) + '/' + dbname,
       }),
       inject: [ConfigService],
       connectionName: connectionName,

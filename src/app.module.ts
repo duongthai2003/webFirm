@@ -16,7 +16,7 @@ import { FavouriteModule } from './api/favourite/favourite.module';
 @Module({
   imports: [
     ConfigModule.forRoot(), // de doc dc file .env
-    // MongooseModule.forRoot('mongodb://localhost/Web_Firm'),
+    // MongooseModule.forRoot('mongodb://localhost:27017/Web_Firm'),
 
     DatabaseModule.mainDb(),
     FavouriteModule,
