@@ -11,3 +11,10 @@ class-transformer
 @types/multer
 npm i @types/lodash
 npm i lodash
+
+
+
+///// lưu ý khi lm nest mailler :
++ tring cái file nest-cli phải có : "webpack": true,
+==> thì ms chs đc
+

@@ -12,6 +12,7 @@ import { CategoryModule } from './api/category/category.module';
 import { MoviesModule } from './api/movies/movies.module';
 import { EpisodeModule } from './api/episode/episode.module';
 import { FavouriteModule } from './api/favourite/favourite.module';
+import { MailModule } from './api/mail/mail.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { FavouriteModule } from './api/favourite/favourite.module';
     CategoryModule,
     MoviesModule,
     EpisodeModule,
+    MailModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],
