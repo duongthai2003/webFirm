@@ -4,6 +4,7 @@ import { InjectMainDBModel, MainDBModel } from 'src/libs/connections/main-db';
 import { Episodes } from 'src/libs/models/episodes/episode.entity';
 import * as fs from 'fs';
 import { MoviesService } from '../movies/movies.service';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class EpisodeService {
@@ -11,6 +12,7 @@ export class EpisodeService {
     @InjectMainDBModel(MainDBModel.Episode)
     protected readonly model: Model<Episodes>,
     protected readonly moviesService: MoviesService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async pagination(start: number, limit: number) {
@@ -32,65 +34,70 @@ export class EpisodeService {
     };
   }
 
-  async create(body: any, file: any) {
-    if (file) {
-      const session = await this.model.startSession();
-      session.startTransaction();
-      try {
-        const movie = await this.moviesService.getById(body.movieId);
-
-        const create = await this.model.create({
-          ...body,
-          nameFile: file.filename,
-          // movie: { ...movie },
-        });
-        await this.moviesService.update(body.movieId, {
-          LatestEpisode: body.episodesNum,
-        });
-
-        return create;
-      } catch (err) {
-        fs.unlink(`./upload/videos/${file.filename}`, (err) => {
-          if (err) {
-            return err;
-          }
-        });
-        await session.abortTransaction();
-        session.endSession();
-        throw new BadRequestException(err);
-      }
-    } else {
+  async create(body: any, file: Express.Multer.File) {
+    if (!file) {
       throw new BadRequestException('File is required');
+    }
+
+    const session = await this.model.startSession();
+    session.startTransaction();
+
+    try {
+      const movie = await this.moviesService.getById(body.movieId);
+
+      // 🔼 Upload video lên Cloudinary (dạng video)
+      const uploadResult = await this.cloudinaryService.uploadVideo(file);
+
+      const created = await this.model.create({
+        ...body,
+        nameFile: uploadResult.secure_url, // hoặc dùng public_id nếu bạn cần
+      });
+
+      await this.moviesService.update(body.movieId, {
+        LatestEpisode: body.episodesNum,
+      });
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return created;
+    } catch (err) {
+      await session.abortTransaction();
+      session.endSession();
+      throw new BadRequestException(err);
     }
   }
 
-  async update(id: string, body: any, file: any) {
-    if (file) {
-      try {
-        const movie = await this.moviesService.getById(body.movieId);
-        const episole = await this.model.findById(id);
-
-        await this.model.findByIdAndUpdate(id, {
-          ...body,
-          nameFile: file.filename,
-          movie: movie,
-        });
-        fs.unlink(`./upload/videos/${episole.nameFile}`, (err) => {
-          if (err) {
-            return err;
-          }
-        });
-      } catch (err) {
-        fs.unlink(`./upload/videos/${file.filename}`, (err) => {
-          if (err) {
-            return err;
-          }
-        });
-
-        throw new BadRequestException(err);
-      }
-    } else {
+  async update(id: string, body: any, file: Express.Multer.File) {
+    if (!file) {
       throw new BadRequestException('File is required');
+    }
+
+    try {
+      const movie = await this.moviesService.getById(body.movieId);
+      const episode = await this.model.findById(id);
+
+      // ✅ Xóa video cũ khỏi Cloudinary (nếu đang dùng Cloudinary URL)
+      if (episode?.nameFile?.includes('res.cloudinary.com')) {
+        const publicId = this.extractPublicIdFromUrl(episode.nameFile);
+        if (publicId) {
+          await this.cloudinaryService.deleteVideo(publicId);
+        }
+      }
+
+      // ✅ Upload video mới
+      const uploadResult = await this.cloudinaryService.uploadVideo(file);
+
+      // ✅ Cập nhật vào DB
+      const update = await this.model.findByIdAndUpdate(id, {
+        ...body,
+        nameFile: uploadResult.secure_url,
+        // movie: movie,
+      });
+
+      return update;
+    } catch (err) {
+      throw new BadRequestException(err);
     }
   }
 
@@ -138,5 +145,14 @@ export class EpisodeService {
       start,
       limit,
     };
+  }
+
+  private extractPublicIdFromUrl(url: string): string | null {
+    try {
+      const match = url.match(/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+$/);
+      return match ? match[1] : null;
+    } catch {
+      return null;
+    }
   }
 }

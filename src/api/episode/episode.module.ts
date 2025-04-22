@@ -6,9 +6,14 @@ import {
 } from 'src/libs/connections/database.module';
 import { EpisodeController } from './episode.controller';
 import { MoviesModule } from '../movies/movies.module';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 @Module({
-  imports: [DatabaseModule.mainDbModels([MainDBModel.Episode]), MoviesModule],
+  imports: [
+    DatabaseModule.mainDbModels([MainDBModel.Episode]),
+    MoviesModule,
+    CloudinaryModule,
+  ],
   controllers: [EpisodeController],
   providers: [EpisodeService],
   exports: [EpisodeService],

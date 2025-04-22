@@ -1,26 +1,26 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { diskStorage } from 'multer';
+import { memoryStorage } from 'multer'; // 👈 thay vì diskStorage
 import { extname } from 'path';
 
 function CustomFileImg() {
   return {
-    storage: diskStorage({
-      destination: './upload/posters',
-      filename: (req, file, cb) => {
-        const name = Date.now() + '_' + file.originalname;
-        cb(null, name);
-      },
-    }),
+    storage: memoryStorage(), // ✅ sửa ở đây
+
+    // diskStorage({ // cho local
+    //   destination: './upload/posters',
+    //   filename: (req, file, cb) => {
+    //     const name = Date.now() + '_' + file.originalname;
+    //     cb(null, name);
+    //   },
+    // }),
+
     limits: {
       fieldSize: 1 * 1024 * 1024,
     },
-    // quy dinh nhan loai file
     fileFilter: (req: any, file: any, cb: any) => {
-      if (file.mimetype.match(/\/(jpg|jpeg|png|gif|webp )$/)) {
-        // Allow storage of file
+      if (file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
         cb(null, true);
       } else {
-        // Reject file
         cb(
           new HttpException(
             `Unsupported file type ${extname(file.originalname)}`,

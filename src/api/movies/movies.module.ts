@@ -1,5 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { MoviesService } from './movies.service';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import {
   DatabaseModule,
   MainDBModel,
@@ -13,6 +14,7 @@ import { EpisodeModule } from '../episode/episode.module';
     DatabaseModule.mainDbModels([MainDBModel.Movies, MainDBModel.Episode]),
     CategoryModule,
     // EpisodeModule,
+    CloudinaryModule,
   ],
   controllers: [MoviesController],
   providers: [MoviesService],

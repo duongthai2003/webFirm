@@ -13,7 +13,7 @@ import * as fs from 'fs';
 import { User } from 'src/libs/models/user/user.entity';
 import * as _ from 'lodash';
 import { Episodes } from 'src/libs/models/episodes/episode.entity';
-
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 @Injectable()
 export class MoviesService {
   constructor(
@@ -22,6 +22,7 @@ export class MoviesService {
     @InjectMainDBModel(MainDBModel.Episode)
     protected readonly modelEpisode: Model<Episodes>,
     protected readonly categoryService: CategoryService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async panigation(start: number, limit: number, query?: FilterQuery<Movies>) {
@@ -46,62 +47,99 @@ export class MoviesService {
     };
   }
 
-  async create(body: any, file: any) {
+  async create(body: any, file: Express.Multer.File) {
     const items = await this.categoryService.findByIds(body.categorys);
 
-    if (file) {
-      try {
-        return await this.model.create({
-          ...body,
-          categorys: items,
-          poster: file.filename,
-          populalStatus: PopularStatus.notpopular,
-        });
-      } catch (err) {
-        fs.unlink(`./upload/posters/${file.filename}`, (err) => {
-          if (err) {
-            return err;
-          }
-        });
+    if (!file) {
+      throw new BadRequestException('File is required');
+    }
 
-        return err.message;
-      }
-    } else {
-      throw new BadRequestException('file is required');
+    try {
+      const uploadResult = await this.cloudinaryService.uploadImage(file);
+
+      return await this.model.create({
+        ...body,
+        categorys: items,
+        poster: uploadResult.secure_url,
+        populalStatus: PopularStatus.notpopular,
+      });
+    } catch (err) {
+      return err.message;
     }
   }
 
-  async update(id: string, body: any, file?: any) {
+  // thêm, sóa file vao upload
+
+  // async update(id: string, body: any, file?: any) {
+  //   const movie = await this.model.findById(id);
+  //   const categorys = await this.categoryService.findByIds(body.categorys);
+
+  //   try {
+  //     const update = await this.model.findByIdAndUpdate(
+  //       id,
+  //       {
+  //         ...body,
+  //         poster: file && file.filename,
+  //         categorys: categorys,
+  //       },
+  //       {
+  //         new: true,
+  //       },
+  //     );
+  //     file &&
+  //       fs.unlink(`./upload/posters/${movie.poster}`, (err) => {
+  //         if (err) {
+  //           return err;
+  //         }
+  //       });
+  //     return update;
+  //   } catch (err) {
+  //     file &&
+  //       fs.unlink(`./upload/posters/${file && file.filename}`, (err) => {
+  //         if (err) {
+  //           return err;
+  //         }
+  //       });
+
+  //     return err.message;
+  //   }
+  // }
+
+  async update(id: string, body: any, file?: Express.Multer.File) {
     const movie = await this.model.findById(id);
     const categorys = await this.categoryService.findByIds(body.categorys);
 
     try {
+      let posterUrl = movie.poster;
+
+      // Nếu có file mới -> upload lên Cloudinary
+      if (file) {
+        // Xóa ảnh cũ nếu đang dùng Cloudinary (option: chỉ khi dùng cloudinary url)
+
+        if (posterUrl?.includes('res.cloudinary.com')) {
+          // Tách public_id từ URL cũ để xóa
+          const publicId = this.extractPublicIdFromUrl(posterUrl);
+          if (publicId) {
+            await this.cloudinaryService.deleteImage(publicId);
+          }
+        }
+
+        const uploadResult = await this.cloudinaryService.uploadImage(file);
+        posterUrl = uploadResult.secure_url;
+      }
+
       const update = await this.model.findByIdAndUpdate(
         id,
         {
           ...body,
-          poster: file && file.filename,
+          poster: posterUrl,
           categorys: categorys,
         },
-        {
-          new: true,
-        },
+        { new: true },
       );
-      file &&
-        fs.unlink(`./upload/posters/${movie.poster}`, (err) => {
-          if (err) {
-            return err;
-          }
-        });
+
       return update;
     } catch (err) {
-      file &&
-        fs.unlink(`./upload/posters/${file && file.filename}`, (err) => {
-          if (err) {
-            return err;
-          }
-        });
-
       return err.message;
     }
   }
@@ -161,5 +199,22 @@ export class MoviesService {
       items,
       category,
     };
+  }
+
+  private extractPublicIdFromUrl(url: string): string | null {
+    try {
+      const urlParts = url.split('/');
+      const fileWithExt = urlParts[urlParts.length - 1];
+      const publicId = fileWithExt.split('.')[0];
+
+      // Lấy các phần "webfirm/posters" nằm ở cuối URL
+      const folder1 = urlParts[urlParts.length - 3]; // webfirm
+      const folder2 = urlParts[urlParts.length - 2]; // posters
+
+      return `${folder1}/${folder2}/${publicId}`;
+    } catch (error) {
+      console.error('Error extracting publicId:', error);
+      return null;
+    }
   }
 }
